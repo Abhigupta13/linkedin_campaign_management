@@ -1,4 +1,6 @@
-import { chromium } from 'playwright';
+import playwright from 'playwright';
+const { chromium } = playwright;
+
 import LinkedInProfile from '../models/LinkedinProfile.js';
 import dotenv from 'dotenv';
 
