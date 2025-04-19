@@ -21,7 +21,7 @@
     "mongodb": "^6.15.0",
     "mongoose": "^8.1.0",
     "morgan": "^1.10.0",
-    "openai": "^4.23.0",
+    "openai": "^4.95.1",
     "playwright": "^1.52.0",
     "puppeteer": "^21.10.0",
     "puppeteer-extra": "^3.3.6",

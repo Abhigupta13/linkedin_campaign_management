@@ -14,6 +14,8 @@ interface ScrapedProfile {
   about?: string;
 }
 
+
+
 export const scrapeLinkedInProfiles = async (searchUrl: string): Promise<ScrapedProfile[]> => {
     console.log("Starting LinkedIn scrape using Playwright...");
   
@@ -66,40 +68,49 @@ export const scrapeLinkedInProfiles = async (searchUrl: string): Promise<Scraped
         );
   
         cards.forEach((card) => {
-          const name = card.querySelector('a span[aria-hidden="true"]')?.textContent?.trim() || '';
-          const headline = card.querySelector('.t-14.t-black.t-normal')?.textContent?.trim() || '';
-          const location = Array.from(card.querySelectorAll('.t-14.t-normal'))
-  .find(el => {
-    const classList = Array.from(el.classList);
-    return classList[0] && /^[A-Za-z0-9]+$/.test(classList[0]); // hashed class
-  })?.textContent?.trim() || '';
+          try {
+            const name = card.querySelector('a span[aria-hidden="true"]')?.textContent?.trim() || '';
+            const headline = card.querySelector('.t-14.t-black.t-normal')?.textContent?.trim() || '';
+            
+            // Get all location divs and take the last one (which is the actual location)
+            const locationDivs = Array.from(card.querySelectorAll('.t-14.t-normal'));
+            const location = locationDivs[locationDivs.length - 1]?.textContent?.trim() || '';
 
-          const profileLink = (card.querySelector('a[href*="linkedin.com/in/"]') as HTMLAnchorElement)?.href?.split('?')[0] || '';
+            const profileLink = (card.querySelector('a[href*="linkedin.com/in/"]') as HTMLAnchorElement)?.href?.split('?')[0] || '';
   
-          const summary = card.querySelector('p.entity-result__summary--2-lines')?.textContent?.trim() || '';
-          let company = '';
-          let jobTitle = '';
-          
-          // Extract company from summary
-          const companyMatch = summary.match(/at (.+)$/i);
-          if (companyMatch) {
-            company = companyMatch[1];
-          }
-          
-          // Extract job title from headline
-          const jobTitleMatch = headline.match(/^([^•]+)/);
-          if (jobTitleMatch) {
-            jobTitle = jobTitleMatch[1].trim();
-          }
+            const summary = card.querySelector('p.entity-result__summary--2-lines')?.textContent?.trim() || '';
+           
+            
+            let jobTitle = '';
+            let company = '';
+            
+            const text: string = (headline + ' ' + summary).trim();
+            const parts = text.split(' at ');
+            
+            if (parts.length > 1) {
+              // Shorten job title (split by | or • and limit to a few words)
+              const rawTitle = parts[0].split(/[|•-]/)[0].trim();
+              jobTitle = rawTitle.split(/\s+/).slice(0, 6).join(' ');
+            
+              const rawCompany = parts[1].split(' - ')[0].trim();
+              company = rawCompany.split(/\s+/).slice(0, 3).join(' ');
+            } else {
+              const fallback = text.split(/[|•-]/)[0].trim();
+              jobTitle = fallback.split(/\s+/).slice(0, 6).join(' ');
+            }
+            
   
-          if (name && profileLink) {
-            results.push({
-              fullName: name,
-              jobTitle: jobTitle || headline, // Fallback to full headline if no specific job title found
-              company,
-              location,
-              profileUrl: profileLink,
-            });
+            if (name && profileLink) {
+              results.push({
+                fullName: name,
+                jobTitle,
+                company,
+                location,
+                profileUrl: profileLink,
+              });
+            }
+          } catch (error) {
+            console.error('Error processing card:', error);
           }
         });
   
