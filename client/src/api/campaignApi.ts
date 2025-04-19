@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { Campaign } from '../types/Campaign';
 
-const API_URL = 'http://localhost:5000';
+// const API_URL = 'http://localhost:5000';
+const API_URL = 'https://linkedin-campaign-management-server.onrender.com';
 
 // Fetch all campaigns
 export const fetchCampaigns = async (): Promise<Campaign[]> => {

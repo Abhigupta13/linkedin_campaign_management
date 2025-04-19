@@ -1,7 +1,8 @@
 import axios from 'axios';
 import { LinkedInProfile } from '../types/LinkedIn';
 
-const API_URL = 'http://localhost:5000';
+// const API_URL = 'http://localhost:5000';
+const API_URL = 'https://linkedin-campaign-management-server.onrender.com';
 
 export const scrapeLinkedInProfiles = async (searchUrl: string): Promise<LinkedInProfile[]> => {
   try {
